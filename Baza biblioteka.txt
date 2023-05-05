@@ -1,0 +1,213 @@
+CREATE DATABASE biblioteka;
+
+
+CREATE TABLE biblioteke(
+	bibliotekaID INT PRIMARY KEY AUTO_INCREMENT,
+    naziv varchar(45) not null,
+    ulica varchar(45) not null,
+    broj varchar(45) not null,
+    mesto varchar(45) not null,
+    telefon varchar(45) not null
+)ENGINE = INNODB
+
+
+CREATE table Bibliotekari(
+	sifraZaposlenog INT PRIMARY KEY,
+    ime varchar(45) not null,
+    prezime varchar(45) not null,
+    JMBG varchar(45) not null,
+    ulica varchar(45) not null,
+    broj varchar(45) not null,
+    grad varchar(45) not null,
+    telefon varchar(45),
+    bibliotekaID INT, 
+    FOREIGN KEY(bibliotekaID) REFERENCES biblioteke(bibliotekaID)
+    ON UPDATE CASCADE
+    ON DELETE NO ACTION
+)ENGINE = INNODB
+
+
+CREATE TABLE Clanovi(
+	brojClanskeKarte INT PRIMARY KEY,
+    ime varchar(45) not null,
+    prezime varchar(45) not null,
+    datumRodjenja varchar(45) not null,
+    telefon varchar(45),
+    ulica varchar(45) not null,
+    broj varchar(45) not null,
+    grad varchar(45) not null,
+    bibliotekaID INT not null,
+    FOREIGN KEY(bibliotekaID) REFERENCES biblioteke(bibliotekaID)
+    ON UPDATE CASCADE
+    ON DELETE NO ACTION
+)ENGINE = INNODB
+
+
+CREATE TABLE PozajmnoOdeljenje(
+	pozajmnoOdeljenjeID INT PRIMARY KEY,
+    aktuelnost varchar(45) not null,
+    zanr varchar(45) not null,
+    bibliotekaID INT not null,
+    FOREIGN KEY(bibliotekaID) REFERENCES biblioteke(bibliotekaID)
+    ON UPDATE CASCADE
+    ON DELETE NO ACTION
+)ENGINE = INNODB
+
+
+CREATE TABLE DecijeOdeljenje(
+	decijeOdeljenjeID INT PRIMARY KEY,
+    namenjeniUzrast INT not null,
+    pozajmnoOdeljenjeID INT not null,
+    FOREIGN KEY(pozajmnoOdeljenjeID) REFERENCES PozajmnoOdeljenje(pozajmnoOdeljenjeID)
+    ON UPDATE CASCADE
+    ON DELETE NO ACTION
+)ENGINE = INNODB
+
+
+CREATE TABLE NaucnoOdeljenje(
+	naucnoOdeljenjeID INT PRIMARY KEY,
+    oblast varchar(45) not null,
+    pozajmnoOdeljenjeID INT not null,
+    FOREIGN KEY(pozajmnoOdeljenjeID) REFERENCES PozajmnoOdeljenje(pozajmnoOdeljenjeID)
+     ON UPDATE CASCADE
+    ON DELETE NO ACTION
+)ENGINE = INNODB
+
+
+CREATE TABLE Knjige(
+	ISBNbroj INT PRIMARY KEY,
+    naziv varchar(45) not null,
+    jezik varchar(45) not null,
+    izdavac varchar(45) not null,
+    stanje INT not null,
+    bibliotekaID INT not null,
+    decijeOdeljenjeID INT,
+    naucnoOdeljenjeID INT,
+    FOREIGN KEY(bibliotekaID) REFERENCES biblioteke(bibliotekaID)
+    ON UPDATE CASCADE
+    ON DELETE NO ACTION,
+    FOREIGN KEY(decijeOdeljenjeID) REFERENCES DecijeOdeljenje(decijeOdeljenjeID)
+    ON UPDATE CASCADE
+    ON DELETE NO ACTION,
+    FOREIGN KEY(naucnoOdeljenjeID) REFERENCES NaucnoOdeljenje(naucnoOdeljenjeID)
+    ON UPDATE CASCADE
+    ON DELETE NO ACTION
+)ENGINE = INNODB
+
+
+CREATE TABLE Evidencija(
+	evidencijaID INT PRIMARY KEY,
+    datumIzdavanja varchar(45) not null,
+    datumVracanja varchar(45),
+    brojClanskeKarte INT not null,
+    ISBNbroj INT not null,
+    sifraZaposlenog INT not null,
+    FOREIGN KEY(brojClanskeKarte) REFERENCES Clanovi(brojClanskeKarte)
+    ON UPDATE CASCADE
+    ON DELETE NO ACTION,
+    FOREIGN KEY(ISBNbroj) REFERENCES Knjige(ISBNbroj)
+    ON UPDATE CASCADE
+    ON DELETE NO ACTION,
+    FOREIGN KEY(sifraZaposlenog) REFERENCES Bibliotekari(sifraZaposlenog)
+    ON UPDATE CASCADE
+    ON DELETE NO ACTION
+)ENGINE = INNODB
+
+
+CREATE TABLE Autori(
+	autorID INT PRIMARY KEY,
+  	ime varchar(45) not null,
+    prezime varchar(45) not null
+)ENGINE = INNODB
+
+
+CREATE TABLE KnjigeAutori(
+	knjigeAutoriID INT PRIMARY KEY AUTO_INCREMENT,
+    ISBNbroj INT not null,
+    autorID INT not null,
+    FOREIGN KEY(ISBNbroj) REFERENCES Knjige(ISBNbroj)
+    ON UPDATE CASCADE
+    ON DELETE NO ACTION,
+    FOREIGN KEY(autorID) REFERENCES Autori(autorID)
+    ON UPDATE CASCADE
+    ON DELETE NO ACTION
+)ENGINE = INNODB
+
+
+INSERT INTO `biblioteke`(`bibliotekaID`, `naziv`, `ulica`, `broj`, `mesto`, `telefon`) 
+VALUES (123456789,'Matica Srpska','Matice Srpske','1','Novi Sad','021-152-134'), 
+(987654321,'Šabačka biblioteka','Masarikova','18','Šabac','015-345-205')
+
+INSERT INTO `bibliotekari`(`sifraZaposlenog`, `ime`, `prezime`, `JMBG`, `ulica`, `broj`, `grad`, `telefon`, `bibliotekaID`) VALUES 
+(2,'Mika','MIkić','0606975772056','Mikina','12','Šabac','064/851-51-51',987654321),
+(3,'Stefa','Stefić','1609983772042','Kasarska','84','Šabac','063/298-516',987654321),
+(4,'Mitar','Mirić','2810963772012','Gajeva','6','Novi Sad','062/998-111',123456789),
+(5, 'Zoran','Peric','1812987772458','Protina','8','Novi Sad','063/156-478',123456789)
+
+INSERT INTO `clanovi`(`brojClanskeKarte`, `ime`, `prezime`, `datumRodjenja`, `telefon`, `ulica`, `broj`, `grad`, `bibliotekaID`) VALUES 
+(222,'Nikola','Nikolic','26-11-1992','064/390-70-21','Macvanska','4','Sabac',987654321),
+(333,'Dejan','Dejanic','05-11-1992','064/320-72-11','Dekijeva','45','Sabac',987654321),
+(444,'Bojan','Bojanic','19-07-1968','062/890-921','Bokijeva','22','Novi Sad',123456789),
+(555,'Mirko','Miric','08-01-2001','064/990-333','Mirkova','13','Novi Sad',123456789)
+
+INSERT INTO `pozajmnoodeljenje`(`pozajmnoOdeljenjeID`, `aktuelnost`, `zanr`, `bibliotekaID`) VALUES 
+(21,'3','Slikovnice',987654321),
+(31,'5','Enciklopedije',987654321),
+(41,'4','Bajke',123456789),
+(51,'1','Basne',123456789),
+(12,'3','Pravo',123456789), #krivicno # organizovani kriminal
+(13,'5','Racunarstvo i informatika',123456789), # programiranje # java
+(14,'4','Sport',987654321), # kosarka # spacejam
+(15,'1','Muzika',987654321) # Rok # gitara
+
+INSERT INTO `decijeodeljenje`(`decijeOdeljenjeID`, `namenjeniUzrast`, `pozajmnoOdeljenjeID`) VALUES 
+(211,7,51),(311,3,21),(411,10,31),(511,5,41)
+
+INSERT INTO `naucnoodeljenje`(`naucnoOdeljenjeID`, `oblast`, `pozajmnoOdeljenjeID`) VALUES 
+(121,'Krivicno pravo',12),(131,'Programiranje',13),(141,'Kosarka',14),(151,'Rok muzika',15)
+
+
+# knjige naucnog odeljenja
+INSERT INTO `knjige`(`ISBNbroj`, `naziv`, `jezik`, `izdavac`, `stanje`, `bibliotekaID`, `naucnoOdeljenjeID`) VALUES 
+(121211,'Organizovani kriminal','Srpski','Vulkan',5,123456789,121),
+(131311,'Osnove Java programiranja','Srpski','Mikro knjiga',10,123456789,131),
+(131312,'Zbirka zadataka iz Jave','Srpski','Mikro knjiga',22,123456789,131),
+(141411,'Space Jam','Engleski','Laguna',12,987654321,141),
+(141412,'The Life Of Kobe Bryant','Engleski','Delfi',31,987654321,141),
+(151511,'Elvis','Srpski','Muzicka knjiga',100,987654321,151),
+(151512,'Fajront u Sarajevu','Srpski','Muzicka knjiga',7,987654321,151)
+
+
+# knjige decijeg odeljenja
+INSERT INTO `knjige`(`ISBNbroj`, `naziv`, `jezik`, `izdavac`, `stanje`, `bibliotekaID`, `decijeOdeljenjeID`) VALUES 
+(211511,'Kornjaca i zec','Srpski','Delfi',15,123456789,211),
+(211512,'Lisica i gavran','Srpski','Delfi',18,123456789,211),
+(511411,'Snezana i sedam patuljaka','Srpski','Delfi',33,123456789,511),
+(511412,'Carobna frula','Srpski','Delfi',44,123456789,511),
+(411311,'Enciklopedija zivotinja','Srpski','Delfi',33,987654321,411),
+(411312,'Enciklopedija svemira','Srpski','Delfi',48,987654321,411),
+(311211,'Zivotinjska slikovnica','Srpski','Enco book',12,987654321,311),
+(311212,'Otvori prozorcic - Veliko i malo','Engleski','Enco book',26,987654321,311)
+
+
+INSERT INTO `evidencija`(`evidencijaID`, `datumIzdavanja`, `brojClanskeKarte`, `ISBNbroj`, `sifraZaposlenog`) VALUES 
+(11110,'11-01-2023',444,121211,4),(11111,'11-01-2023',444,131311,4),
+(11112,'18-03-2023',555,121211,4),(11113,'15-04-2023',555,511411,5),
+(11114,'22-04-2023',555,211511,5),
+(11115,'10-04-2023',222,151512,2),(11116,'10-04-2023',222,311212,2),(11117,'28-04-2023',222,411312,3),
+(11118,'05-04-2023',333,411311,2),(11119,'03-04-2023',333,141411,2),(11120,'03-04-2023',333,141412,2)
+
+
+INSERT INTO `autori`(`autorID`, `ime`, `prezime`) VALUES (99,'Nele','Karajlic'),(98,'Rej','Konoli'),
+(97,'Milan','Gocic'),(96,'Laslo','Kraus'),(95,'Milan','Skulic'),(94,'Leri','Klemons'),
+(93,'Vladimir','Mancic'),(92,'Leo','Benvenuti'),(91,'Steve','Rudnick'),(90,'Roland','Lazenby')
+INSERT INTO `autori`(`autorID`, `ime`, `prezime`) VALUES (89,'Braca','Grim'),(88,'Feniks','Libris'),
+(87,'Endru','Fraknoi'), (86,'Trejs','Moronej')
+
+
+INSERT INTO `knjigeautori`(`ISBNbroj`, `autorID`) VALUES (511411,89),(511412,89),(411311,88),
+(411312,87),(311211,86),(311212,86),(131311,97),(121211,95),(131312,96),(151512,99),
+(151511,98),(211511,94),(211512,93),(141411,92),(141411,91),(141412,90)
+
+
+
